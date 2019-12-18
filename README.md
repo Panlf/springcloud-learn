@@ -23,7 +23,7 @@ Eureka单机集群，第一个Eureka服务
 
 ### springcloud-eureka-server-second
 
-Eureka单机集群，第一个Eureka服务
+Eureka单机集群，第二个Eureka服务
 
 ### springcloud-hystrix-dashboard
 
