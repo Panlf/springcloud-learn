@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="springcloud-consul-order" />
+        <module name="springcloud-consul-product" />
+        <module name="springcloud-dept-service" />
+        <module name="springcloud-employee-service" />
+        <module name="springcloud-eureka-server-first" />
+        <module name="springcloud-eureka-server-second" />
+        <module name="springcloud-hystrix-dashboard" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="springcloud-consul-order" target="1.8" />
+      <module name="springcloud-consul-product" target="1.8" />
+      <module name="springcloud-dept-service" target="1.8" />
+      <module name="springcloud-employee-service" target="1.8" />
+      <module name="springcloud-eureka-server-first" target="1.8" />
+      <module name="springcloud-eureka-server-second" target="1.8" />
+      <module name="springcloud-hystrix-dashboard" target="1.8" />
+      <module name="springcloud-learn" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

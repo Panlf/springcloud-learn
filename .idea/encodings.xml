@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/springcloud-consul-order" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/springcloud-consul-product" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/springcloud-dept-service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/springcloud-employee-service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/springcloud-eureka-server-first" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/springcloud-eureka-server-second" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/springcloud-hystrix-dashboard" charset="UTF-8" />
+  </component>
+</project>
