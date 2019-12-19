@@ -10,6 +10,8 @@
       <module fileurl="file://$PROJECT_DIR$/springcloud-eureka-server-second/springcloud-eureka-server-second.iml" filepath="$PROJECT_DIR$/springcloud-eureka-server-second/springcloud-eureka-server-second.iml" />
       <module fileurl="file://$PROJECT_DIR$/springcloud-hystrix-dashboard/springcloud-hystrix-dashboard.iml" filepath="$PROJECT_DIR$/springcloud-hystrix-dashboard/springcloud-hystrix-dashboard.iml" />
       <module fileurl="file://$PROJECT_DIR$/springcloud-learn.iml" filepath="$PROJECT_DIR$/springcloud-learn.iml" />
+      <module fileurl="file://$PROJECT_DIR$/springcloud-sentinel-order/springcloud-sentinel-order.iml" filepath="$PROJECT_DIR$/springcloud-sentinel-order/springcloud-sentinel-order.iml" />
+      <module fileurl="file://$PROJECT_DIR$/springcloud-sentinel-product/springcloud-sentinel-product.iml" filepath="$PROJECT_DIR$/springcloud-sentinel-product/springcloud-sentinel-product.iml" />
     </modules>
   </component>
 </project>

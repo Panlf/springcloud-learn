@@ -13,6 +13,8 @@
         <module name="springcloud-eureka-server-first" />
         <module name="springcloud-eureka-server-second" />
         <module name="springcloud-hystrix-dashboard" />
+        <module name="springcloud-sentinel-order" />
+        <module name="springcloud-sentinel-product" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -24,6 +26,8 @@
       <module name="springcloud-eureka-server-second" target="1.8" />
       <module name="springcloud-hystrix-dashboard" target="1.8" />
       <module name="springcloud-learn" target="1.8" />
+      <module name="springcloud-sentinel-order" target="1.8" />
+      <module name="springcloud-sentinel-product" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
