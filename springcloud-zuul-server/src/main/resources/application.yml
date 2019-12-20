@@ -1,0 +1,36 @@
+server:
+  port: 8040
+spring:
+  application:
+    name: zuul-server
+  cloud:
+    # 配置consul的服务注册
+    consul:
+      host: 127.0.0.1 # consul服务器主机地址
+      port: 8500  # consul服务器ip地址
+      discovery:
+        # 是否需要注册
+        register: true
+        # 注册的实例ID 唯一标志
+        instance-id:  ${spring.application.name}:${server.port}
+        # 服务名称
+        service-name: ${spring.application.name}
+        # 服务请求端口
+        port: ${server.port}
+        # 指定开启ip地址注册
+        prefer-ip-address: true
+        # 当前服务的请求ip
+        ip-address: ${spring.cloud.client.ip-address}
+
+# 路由配置
+zuul:
+  routes:
+    # 配置商品的微服务
+    #product-service: # 路由ID，随便写
+    #  path: /product-service/** # 映射路径  localhost:8040/product-service/**
+      #url:  http://127.0.0.1:8020/ #映射路径对应实际微服务url地址
+    #  serviceId: consul-product # 整合了注册中心，就可以直接使用服务名
+    # 如果路由ID和微服务ID一致
+    consul-product: /product-service/**
+    # zuul中的默认路由配置
+    # 如果当前微服务名称service-product 默认请求映射路径 /service-product/**

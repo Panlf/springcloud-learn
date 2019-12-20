@@ -20,10 +20,12 @@ public class ProductController {
         /**
          * 用于测试Hystrix的熔断器的超时时间
          */
-        try{
-            TimeUnit.MILLISECONDS.sleep(2000);
-        }catch (Exception e){}
-
+        if(id==2) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(2000);
+            } catch (Exception e) {
+            }
+        }
         Product product = new Product();
         product.setId(id);
         product.setName(id+" -- test Product");

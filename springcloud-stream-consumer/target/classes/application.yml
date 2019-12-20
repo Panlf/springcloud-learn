@@ -1,0 +1,23 @@
+server:
+  port: 7090
+
+spring:
+  application:
+      name: stream-consumer
+  rabbitmq:
+    addresses: 127.0.0.1
+    username: guest
+    password: guest
+  cloud:
+    stream:
+      bindings:
+        input:  #内置的获取消息的通道，从rabbit-stream中获取消息
+          destination: rabbit-stream
+          group: group1 #设置消息的组名称(同名组中有多个消费者，只会有一个去消费消息)
+          consumer:
+            partitioned: true # 开启分区支持
+      binders:  #配置绑定器
+        defaultRabbit:
+          type: rabbit
+      instance-count: 2 #消费者总数
+      instance-index: 0 #当前消费者的索引 另外一个1

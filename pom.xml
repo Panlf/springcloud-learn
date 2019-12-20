@@ -18,6 +18,13 @@
         <module>springcloud-hystrix-dashboard</module>
         <module>springcloud-sentinel-product</module>
         <module>springcloud-sentinel-order</module>
+        <module>springcloud-zuul-server</module>
+        <module>springcloud-gateway-server</module>
+        <module>springcloud-gateway-sleuth</module>
+        <module>springcloud-stream-producer</module>
+        <module>springcloud-stream-consumer</module>
+        <module>springcloud-config-server</module>
+        <module>springcloud-config-client</module>
     </modules>
 
     <parent>
@@ -30,11 +37,6 @@
     <!-- 公共Jar包管理  -->
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
@@ -43,6 +45,12 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>2.1.6.RELEASE</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>

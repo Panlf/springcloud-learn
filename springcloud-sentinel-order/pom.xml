@@ -11,6 +11,12 @@
 
     <artifactId>springcloud-sentinel-order</artifactId>
     <dependencies>
+        <!-- springcloud-gateway不支持web,因为聚合项目,改成各自导入-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <!-- 整合Consul注册中心-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
