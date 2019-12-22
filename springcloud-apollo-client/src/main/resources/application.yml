@@ -1,0 +1,11 @@
+server:
+  port: 7060
+apollo:
+  client:
+    name: test
+apollo:
+  bootstrap:
+    enabled:  true  #开启Apollo
+  meta: http://127.0.0.1:8080
+app:
+  id: apollo-client #指定Apollo配置中心中的appid

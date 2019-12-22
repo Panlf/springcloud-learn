@@ -17,6 +17,9 @@ public class ProductController {
 
     @GetMapping("get/{id}")
     public Product findById(@PathVariable Integer id){
+        /**
+         * 测试熔断器的熔断时间
+         */
         if(id==2){
             try{
                 TimeUnit.MILLISECONDS.sleep(2000);

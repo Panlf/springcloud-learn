@@ -25,6 +25,7 @@
         <module>springcloud-stream-consumer</module>
         <module>springcloud-config-server</module>
         <module>springcloud-config-client</module>
+        <module>springcloud-apollo-client</module>
     </modules>
 
     <parent>

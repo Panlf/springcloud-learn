@@ -7,8 +7,6 @@ ribbon:
   ConnectTimeout: 5000
   ReadTimeout: 5000
 
-
-
 spring:
   application:
       name: sentinel-order

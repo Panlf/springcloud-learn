@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="springcloud-apollo-client" />
         <module name="springcloud-config-client" />
         <module name="springcloud-config-server" />
         <module name="springcloud-consul-order" />
@@ -25,6 +26,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="springcloud-apollo-client" target="1.8" />
       <module name="springcloud-config-client" target="1.8" />
       <module name="springcloud-config-server" target="1.8" />
       <module name="springcloud-consul-order" target="1.8" />
