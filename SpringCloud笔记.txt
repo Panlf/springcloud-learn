@@ -1,0 +1,870 @@
+			RESTful		RPC         
+		
+通讯协议	HTTP		一般使用TCP
+性能		略低		较高
+灵活度		高			低
+应用		微服务架构	SOA架构
+
+CAP原理
+A 	可用性	保持服务可用，多节点	在集群中一部分节点故障后，集群还是响应客户端的读写请求
+C	一致性	多节点数据一致		所有数据变化都是同步的
+P	分区容忍性	是否可以将数据存到多个地方		某个节点故障，并不影响整个系统的运行
+
+不可能同时满足C、A、P
+
+ac	放弃分区容忍	物理数据库
+ap	可以短暂允许数据不一致	NoSQL数据库
+cp	放弃可用性
+
+
+	
+微服务架构特性
+	1、每个微服务可独立运行在自己的进程里
+	2、一系列独立运行的微服务共同构建起整个系统
+	3、每个服务为独立的业务开发，一个微服务只关注某个特定的功能
+	4、微服务之间通过一些轻量的通信机制进行通信
+	5、可以使用不同的语言与存储技术
+	6、全自动的部署机制
+	
+微服务化的设计要点
+	1、负载均衡+API网关
+	2、无状态化与独立有状态的集群
+	3、数据库横向扩展
+	4、缓存
+	5、服务拆分与服务发现
+	6、服务编排与弹性伸缩
+	7、统一配置中心
+	8、统一日志中心
+	9、熔断、限流、降级
+	10、全方位监控
+			服务器性能监控	CPU、内存、网卡、磁盘、TCP
+			应用性能监控	JVM堆内存、GC、Thread、CPU利用率、Method性能
+			业务指标监控
+			调用链路监控	RT、TPS、Exception
+			底层组件监控	RT、TPS、连接数、连接状态、消息积压、2k节点数
+			系统异常监控	流量尖刺、Exception Log、服务线程数、异常报警
+			
+			
+微服务基础架构
+	微服务框架
+		SpringCloud
+		Apache ServiceComb
+		ZeroC ICE
+		Dubbox
+		Motar
+		JSF
+	服务容错
+		超时
+		熔断
+		隔离
+		限流
+		降级
+	服务监控
+		日志监控
+		调用链监控
+		Metrics监控
+		告警通知
+		健康检查
+	运行时支撑服务
+		服务网关
+		服务注册发现
+		负载均衡
+		配置中心
+	服务安全
+		OAuth授权
+		Jwt认证
+
+微服务技术栈
+			服务开发	SpringBoot
+			服务配置与管理	Netflix-Archaius	阿里-Diamond
+			服务注册与发现	Eureka	Consul	Zookeeper
+			服务调用	Rest	RPC		gRpc
+			服务熔断器	Hystrix	Envoy
+			负载均衡	Ribbon	Nginx
+			服务接口调用	Feign
+			消息队列	Kafka	Rabbit	ActiveMQ	RocketMQ
+			服务配置中心管理	SpringCloudConfig	chef
+			服务路由	Zuul
+			服务监控 	Zabbix	 Nagios 	Metrics		Spectator
+			全链路追踪	Zipkin 	Brave	Dapper
+			服务部署	Docker	OpenStack	Kubernetes
+			数据流操作	SpringCloud	Stream --- 封装Redis、Kafka、Rabbit
+			事件消息总线	SpringCloud Bus
+			批量任务	SpringCloud Task
+			
+
+服务注册中心
+	功能
+		1、服务发现
+			服务注册/反注册	保存服务提供者和服务调用者的信息
+			服务订阅/取消订阅 服务调用者订阅服务提供者的信息	最好有实时推送的功能
+			服务路由 具有筛选整合服务提供者的能力
+		2、服务配置
+			配置订阅 服务提供者和服务者订阅微服务相关的配置
+			配置下发	主动将配置推送给服务提供者和服务调用者
+		3、服务健康监测
+			监测服务提供者的健康情况
+
+	常见注册中心
+		Zookeeper	
+		Eureka
+		Consul
+		Nacos
+		
+	使用Eureka
+		1、搭建Eureka Server
+		2、将服务提供者注册到EurekaServer上
+			引入Jar包
+			修改Application.yml的Eureka的配置信息
+			修改启动类，添加服务发现的支持（可选）
+		3、服务消费者通过注册中心获取服务列表并调用
+		
+	Eureka的服务剔除问题
+		在服务的提供者，设置心跳间隔，设置续约到期时间
+		
+	Eureka自我保护机制
+		server:
+			# 关闭自我保护
+			enable-self-preservation: false
+			# 剔除服务间隔
+			eviction-interval-timer-in-ms: 4000
+	
+	Eureka流程
+		Eureka-Server	
+				spring.factory中的配置
+				EurekaServerAutoConfiguration
+						EurekaController	配合页面完成控制台功能
+						jerseyApplication
+								"com.netflix.discovery","com.netflix.eureka"
+									@Path,@Provider
+											发布web接口
+													让EurekaClient调用
+
+Ribbon
+	ribbon:
+	  ReadTimeout: 10000
+	  ConnectTimeout: 10000
+	  MaxAutoRetries: 0
+	  MaxAutoRetriesNextServer: 1
+
+	netflix发布的一个负载均衡器。
+	Eureka一般配合Ribbon进行使用，Ribbon提供了客户端负载均衡的功能，Ribbon利用从
+	Eureka中读取到的服务信息，在调用服务节点提供服务时，会合理的进行负载
+	
+	Eureka内部集成Ribbon
+		在创建RestTemplate的时候，声明@LoadBalanced
+		使用restTemplate调用远程微服务：不需要拼接URL，使用待请求的服务名替换IP地址
+		
+	内部流程
+		对Spring容器中的RestTemplate对象打一个标记
+		
+		程序启动
+			RibbonAutoConfiguration(自动装配)
+					向RestTemplate中添加请求拦截器
+				LoadBalancerAutoConfiguration
+				
+		发起请求
+			执行LoadBalancerInterceptor中的intercept方法
+			ILoadBalancer 负载均衡器
+			待执行的server地址
+			发起请求调用远程服务
+			
+			
+Consul
+	Consul是HashiCorp公司推出的开源工具，用于实现分布式系统的服务发现与配置
+	
+	Consul 强一致性	CP
+	Eureka保证高可用和最终一致性 AP
+	
+	直接启动 Consul agent -dev -client=0.0.0.0
+	进入管理页面 ip:8500
+	
+	-client 客户端IP地址  0.0.0.0 表示不限制
+	-server 以server身份启动
+	-bootstrap-expect 集群要求的最少server数量，当地域这个数量，集群即失效
+	-data-dir data存放的目录
+	-node 节点id，在同一集群中不能重复
+	-bind 监听的ip地址
+	
+	启动节点
+	consul agent -server -bootstrap-expect 3 -data-dir /etc/consul.d -node=server-1 -bind=ip.1 -ui -client 0.0.0.0 &
+	consul agent -server -bootstrap-expect 2 -data-dir /etc/consul.d -node=server-2 -bind=ip.2 -ui -client 0.0.0.0 &
+	consul agent -server -bootstrap-expect 2 -data-dir /etc/consul.d -node=server-3 -bind=ip.3 -ui -client 0.0.0.0 &
+	
+	consul agent -client=0.0.0.0 -bind=ip.4 -data-dir /etc/consul.d  -node=client-1
+	
+	加入集群
+	consul join ip.1
+	
+	consul members 查看集群
+	
+	agent	启动一个consul的守护进程
+		dev 	开发者模式
+		client	是consul代理和consul server交互
+			一个微服务对应一个client
+			微服务和client部署到一台机器上
+		server 	正在干活的consul服务
+			3-5个
+			
+	Gossip	流言协议
+		所有的consul都会参与到gossip协议中（多节点中数据赋值）
+		
+	Raft协议
+		保证server集群的数据一致
+		Leader 是server集群中唯一处理可以端请求的
+		Follower 选民，被动接收数据
+		Candidate 候选人	可以被选举为leader
+		
+	agent以client模式启动的节点。在该模式下，该节点会采集相关信息，通过rpc的方式向server发送。
+	Client模式节点有无数个，官方建议搭建微服务配置
+	
+	agent以server模式启动的节点。一个数据中心至少包含1个server节点。不过官方建议使用3或5个server节点组建集群，
+	以保证高可用且不失效率。server节点参与Raft、注册服务、健康监测等功能
+	
+	
+	
+服务调用
+	Feign组件
+		Netflix开发的声明式，模板化的HTTP客户端
+		1、导入openfeign
+		2、配置调用接口
+		3、在启动类上激活feign
+		4、通过自动的接口调用远程微服务
+	
+		Feign是在Ribbon的基础上进行了一次该进，是一个使用起来更加方便的HTTP客户端。
+		
+		Feign还可以进行高级配置
+		feignName	FeignClient的名称
+		connectTimeout	建立连接的超时时长
+		readTimeout	读取超时时长
+		loggerLevel	Feign的日志级别
+		errorDecoder	Feign的错误解码器
+		retryer	配置重试
+		requestInterceptors	添加请求拦截器
+		decode404	配置熔断不处理404异常
+		
+		
+		Feign的请求压缩
+			支持请求和响应进行GZIP压缩，以减少通信过程中的性能损耗
+			feign:
+				compression:
+					request:
+						enable: true	# 开启请求压缩
+						mime-types:	text/html,application/xml,application/json # 设置压缩的数据类型
+						min-request-size: 2048 # 设置触发压缩的大小下限
+					response:
+						enbale: true	# 开启响应压缩
+				上述均为默认值
+			
+		Feign日志级别
+		
+			logging.level.xx :debug	 Feign只会对日志级别为debug的做出响应
+			feign.client.config.xx.loggerLevel 四种日志级别
+				NONE	性能最佳 - 不记录任何日志 默认值
+				BASIC	适用于生产环境追踪问题 仅记录请求方法、URL、响应状态代码以及执行时间
+				HEADERS	记录BASIC级别的基础上，记录请求和相应的Header
+				FULL	比较适用于开发及测试环境定位问题	记录请求和响应的header、body和元数据
+		
+		
+		Ribbon是一个客户端的负载均衡器
+		Feign是在Ribbon的基础上进行了封装
+		
+		Feign流程分析
+			@EnableFeignClients
+					FeignClientsRegister.class
+						1、注册配置
+						2、创建并注册FeignClientFactoryBean对象
+							FeignClientFactoryBean
+									FeignInvocationHandler
+									动态代理对象
+									
+	*	扫描所有的@FeignClient注解。找到对应的接口
+	*	创建标注了@FeignClient接口的动态代理对象
+	*	FeignInvocationHandler
+		
+	Hystrix组件
+		高并发问题
+			tomcat会以线程池的形式对所有请求进行统一的管理，对于某个方法可能存在的耗时问题的时候，
+			随着外面积压的请求越来越多，势必会造成系统的崩溃。
+			为了不影响其他接口的正常访问，对多个服务之间进行隔离
+				1、线程池隔离
+				2、信号量隔离，计数器
+				
+		
+		HystrixCommandProperties各种配置项
+		
+    理解ribbon -- feign-- hystrix
+	
+	
+	单独使用
+	1、引入hystrix的依赖
+	2、在启动类中激活Hystrix
+	3、配置熔断触发的降级逻辑
+	4、在需要收到保护的接口上使用@HystrixCommand配置
+		
+	对Feign的支持
+	1、引入依赖(Feign中已经继承了Hystrix)
+	2、在feign中配置开启Hystrix
+	3、自定义一个接口实现类，这个实现类就是熔断触发的降级逻辑
+	4、修改FeignClient接口添加降级方法的支持
+	
+	hystrix-dashboard
+	1、引入依赖
+	2、使用Hystrix的配置上进行配置
+	3、另外新建一个项目 -- 引入依赖 -- 
+	开启即可访问http://localhost:8080/hystrix--http://localhost:8021/actuator/hystrix.stream
+	
+	成功		0	0	超时
+	熔断		0	0	线程池拒绝
+	错误请求数	0	0	失败/异常数
+	
+	turbine是填入自己的ip查看集群 - http://localhost:8080/turbine.stream
+	
+	断路器状态
+		closed 关闭 open 开启	half open半开
+		
+	
+	熔断器的隔离策略
+		线程池隔离策略
+		信号量隔离策略
+	
+	Sentinel组件
+		Sentinel 是阿里巴巴开源的一款断路器实现
+			丰富的应用场景
+			完备的实时监控
+			广泛的开源生态
+			完善的SPI扩展点
+			
+		Sentinel管理控制台
+			https://github.com/alibaba/Sentinel/releases 下载Jar包
+			
+			启动
+				java -Dserver.port=8090 -Dcsp.sentinel.dashboard.server=localhost:8090 -Dproject.name=sentinel-dashboard -jar sentinel-dashboard-1.7.0.jar
+				
+				-Dserver.port=8090用于指定Sentinel控制台端口为8090
+				
+				登录功能
+					用户名和密码都是sentinel
+					
+			通用资源保护
+			@SentinelResource
+			
+			本地Sentinel限流规则加载
+			resource 资源名	即限流规则的作用对象
+			count	限流阈值
+			grade	限流阈值类型 QPS或并发数
+			limitApp	流控针对的调用来源，若为default则不区分调用来源
+			strategy	调用关系限流策略
+			controlBehavior	流量控制效果 直接拒绝、warm up、匀速排队
+			
+			配置文件配置以下配置
+			spring.cloud.sentinel.datasource.ds1.file.file=classpath: flowrule.json
+			spring.cloud.sentinel.datasource.ds1.file.data-type=json
+			spring.cloud.sentinel.datasource.ds1.file.rule-type=flow
+			
+			flow 流控
+			degrade 熔断
+			
+			流控	
+				限流 -- 阈值数 2 每秒 2个
+			
+		Resilience4J
+			非常轻量、简单，并且文档非常清晰、丰富的熔断工具，也是Hystrix官方推荐的替代产品。
+	
+
+微服务网关
+	微服务网关介于客户端与服务器之间的中间层，所有的外部请求都会经过微服务网关。客户端只需要与
+	网关交互，只知道一个网关地址即可，这样简化开发：
+	1、易于监控
+	2、易于认证
+	3、减少了客户端与各个微服务之间的交互次数
+	
+	API网关是一个服务器，是系统对外的唯一入口。
+	网关的职责：身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。
+	
+	常见API网关
+		Kong
+			基于Nginx+Lua开发，性能高，稳定，有多个可用的插件可以开箱即用。
+		
+		Zuul
+			Netflix开源，功能丰富，基于Java开发，易于二次开发
+		
+		Traefik
+			GO语言开发，轻量易用
+		
+		SpringCloud Gateway
+			SpringCloud提供的网关服务
+			
+		Nginx+Lua实现
+			使用Nginx的反向代理和负载均衡可实现对api服务器的负载均衡及高可用
+			
+	
+	Nginx的使用
+		server{
+		
+			#路由到订单服务
+			location /api-order{
+				proxy_pass http://127.0.0.1:9001/;
+			}
+			
+			#路由到商品服务
+			location /api-product{
+				proxy_pass http://127.0.0.1:9002/;
+			}
+		}
+		
+	
+	Zuul
+		1、介绍
+			zuul组件的核心是一系列的过滤器，这些过滤器可实现功能
+				动态路由
+				压力测试
+				负载均衡
+				静态响应处理
+				身份认证和安全
+		
+		2、搭建zuul网关服务器
+			创建工程导入Jar
+			配置启动类，开启网关服务器功能
+			配置文件
+		
+		3、路由
+			路由：根据请求的URL，将请求分配到对应的微服务中进行处理
+			
+			# 路由配置
+			zuul:
+			  routes:
+				# 配置商品的微服务
+				product-service: # 路由ID，随便写
+				  path: /product-service/** # 映射路径  localhost:8040/product-service/**
+				  url:  http://127.0.0.1:8020/ #映射路径对应实际微服务url地址
+			
+		4、过滤器
+			zuul的过滤器总共有4种类型
+			PRE	这种路由器在请求被路由之前调用	我们可利用这种过滤器实现身份验证、在集群中选择请求的微服务
+				记录调试信息等
+			
+			ROUNTING	这种过滤器将请求路由到微服务。这种过滤器用于构建发送微服务的请求，并使用HttpClient或
+				Netflix Ribbon请求微服务
+				
+			POST
+				这种过滤器在路由到微服务以后执行。这种过滤器可用来响应添加标准的HTTP Header、收集统计信息和指标
+				将响应从微服务发送给客户端等
+				
+			ERROR
+				在其他阶段发生错误时执行该过滤器
+				
+			ZuulFilter是过滤器的顶级父类。
+				shouldFilter 返回一个Boolean值，判断该过滤器是否需要执行
+				run	过滤器的具体业务逻辑
+				filterType 返回字符串，代表过滤器的类型
+					pre 请求在被路由之前执行
+					routing 在路由请求时调用
+					post	在routing和error过滤器之后调用
+					error	处理请求时发生错误调用
+				filterOrder	通过返回的int值来定义过滤器的执行顺序，数字越小优先级越高
+		
+		5、内部源码
+			spring.factories
+				ZuulServerAutoConfiguration
+					ZuulHandlerMapping	会自动加入到springmvc的handlerMapping链中，用于处理zuul的映射
+					ZuulController	配置一个zuulServlet
+									将所有符合规则的请求，加给ZuulServlet的service方法进行处理
+		
+		问题
+			性能问题
+				实质是一个同步的servlet，采用多线程阻塞模型进行请求转发。
+				当前端请求量大，而后台服务比较多时，很容易耗尽容器线程池内的线程，造成容器无法接受新的请求
+		
+				不支持任何长连接，如WebSocket
+				
+	springcloud gateway网关
+	
+		核心概念
+			路由
+			断言
+			过滤器
+		
+		内部使用的是netty+webflux
+		springcloud-gateway使用的web框架为webflux，和SpringMVC不兼容。引入的限流组件是hystrix。
+		redis底层不再使用jedis，而是lettuce。
+		
+		路由配置
+			1、搭建环境
+					创建工程导入坐标
+					<dependency>
+						<groupId>org.springframework.cloud</groupId>
+						<artifactId>spring-cloud-starter-gateway</artifactId>
+					</dependency>
+					配置启动类
+					
+					配置文件
+					spring:
+					  application:
+						  name: gateway-server
+					# 配置springcloud-gateway路由
+					  cloud:
+						gateway:
+						  routes:
+							#配置路由 ： 路由Id，路由到微服务的uri，断言(判断条件)
+						  - id: consul-product
+							uri: http://127.0.0.1:8020
+							predicates:
+							- Path=/get/**
+			2、路由规则
+				断言	路由条件
+				predicates:
+					- After=xxxx # 路由断言之后匹配
+					- Before=xxxx # 路由断言之前匹配
+					- Between=xxx,xxx #路由断言之间匹配
+					- Cookie=xx,xxx # 路由断言cookie匹配，此predicate匹配给定名称xx和正则表达式xxx
+					- Header=X-Request-Id, \d+	# 路由断言Header匹配，header名称匹配X-Request-Id，且正则表达式\d+
+					- Host=**.com,**.org # 路由断言匹配Host匹配，匹配下面Host主机列表，**代表可变参数
+					- Method=GET # 路由断言匹配Method匹配
+					- Path=/get/** #路由断言匹配
+					- Query=baz # 路由断言Query匹配，将请求参数param-baz进行匹配
+					- RemoteAddr=192.168.1.1/24 #路由断言RemoteAddr匹配，将匹配192.168.1.1-192.168.1.254，
+												#其中24是子网掩码位数即255.255.255.0
+			3、动态路由
+				使用注册中心
+				
+				
+				spring:
+				  application:
+					  name: gateway-server
+				# 配置springcloud-gateway路由
+				  cloud:
+					gateway:
+					  routes:
+						#配置路由 ： 路由Id，路由到微服务的uri，断言(判断条件)
+					  - id: consul-product
+						#uri: http://127.0.0.1:8020 #目标微服务请求地址
+						uri: lb://consul-product #lb://根据微服务名称从注册中心中拉取服务请求路径
+						predicates:
+						- Path=/product-service/** 
+						filters: #配置路由过滤器 http://localhost:8060/product-service/get/1
+						- RewritePath=/product-service/(?<segment>.*),/$\{segment} #路径重写的过滤器，在yml中$写为$\
+		
+		
+		过滤器
+			过滤器只有pre post
+			pre 这种过滤器在请求被路由之前调用。可进行身份验证、集群中选择请求的微服务、记录调试信息等
+			post	这种过滤器在路由到微服务以后执行。这种过滤器可用来作为响应添加标准的Http Header、
+					收集统计信息和指标、将响应从微服务发送到客户端
+			
+			过滤器类型
+				局部过滤器	gatewayFilter 应用到单个路由或者一个分组的路由上
+				全局过滤器	globalFilterglobalFilter 应用到所有的路由上
+		
+		
+			全局过滤器
+				负载均衡过滤器
+					LoadBalancer
+				http客户端过滤器
+					HttpClient
+				WebSocket相关过滤器
+					WebSocket
+				路径转发相关过滤器
+					ForwardPath
+				路由url相关过滤器
+					RouteToRequestUrl
+				webclient过滤器
+					WebClient
+			
+		统一鉴权
+			public class LoginFilter implements GlobalFilter,Ordered {...}
+		网关限流
+			网关限流算法
+				1、计数器
+					计数器算法是最简单的一种限流实现方式。其本质是通过维护一个单位时间内的计数器，每次请求
+					计数器加1，当单位时间内计数器累加到大于设定的阈值，则之后的请求都被拒绝，直到单位时间已经过去
+					再将计数器重置为零
+				2、漏桶算法
+					漏桶算法可以很好地限制容量池的大小，从而防止流量暴增。漏桶可以看做一个带有常量服务时间的单服务器
+					队列，如果漏桶包溢出，那么数据包会被丢弃。在网络中，漏桶算法可以控制端口的流量输出速率，
+					平滑网络上的突发流量，实现流量整形，从而为网络提供一个稳定的流量
+				3、令牌桶算法
+					令牌桶算法是对漏桶算法的一种改进，桶算法能够限制请求调用速率，而令牌桶算法能够在限制调用的平均速率的
+					同时还允许一定程度的突发调用。在令牌桶算法中，存在一个桶，用来存放固定数量的令牌。算法有存在一种机制，
+					以一定速率往桶中放令牌，每次请求调用需要先获取令牌，只有拿到令牌，才有机会执行。否则选择等待可用令牌或者直接拒绝。
+			
+			
+			基于filter的限流
+			1、导入redis的依赖
+			2、修改applcation.yml
+			3、配置Redis中的key的解析器keySesolver
+				@Configuration
+				public class KeyResolverConfiguration {}
+				
+				
+			基于Sentinel的限流
+			1、导入Sentinel的响应依赖
+			<dependency>
+				<groupId>com.alibaba.csp</groupId>
+				<artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
+			</dependency>
+			
+			2、配置applicaiton.yml
+			 - RewritePath=/product-service/(?<segment>.*),/$\{segment} #路径重写的过滤器，在yml中$写为$\
+			 
+			3、配置类
+			@Configuration
+			public class GatewayConfiguration {}
+			
+		网关的高可用
+			其实就是集群，一个节点坏了，可以用其他节点
+							 ----	GatewayA
+			请求 --- Nginx 	 ----	GatewayB
+							 ----	GatewayC
+							 
+							
+							
+							
+链路追踪
+	
+	分布式链路追踪，就是将一次分布式请求还原成调用链路，进行日志记录，性能监控并将一次分布式请求的调用情况集中展示。
+	
+	目前业界比较流行的是
+		Twitter的Zipkin，阿里的鹰眼，美团的Mtrace，大众的cat，大部分基于google发表的Dapper
+		
+		
+	SpringCloud Sleuth主要功能就是在分布式系统中提供追踪解决方案，并且兼容支持zipkin
+	
+	
+	trace	整个调用链路
+	span	每个最小的工作单元
+			一次远程微服务调用
+		
+     		
+			
+	配置Sleuth
+	1、每个需要追踪的微服务添加如下jar
+	
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-sleuth</artifactId>
+	</dependency>
+		
+	2、每个需要追踪的微服务添加配置
+	logging:
+	  level:
+		root: info
+		org.springframework.web.servlet.DispatcherServlet: DEBUG
+		org.springframework.cloud.sleuth: DEBUG
+		
+		
+	Zipkin	
+		Twitter的一个开源项目，它基于Google Dapper实现，它致力于收集服务的定时数据，以解决
+		微服务架构中的延迟问题，包括数据的收集、存储、查找和展现。
+		
+		4个核心组件组成
+			Collector	收集器组件，他主要用于处理从外部系统发送过来的追踪信息，将这些
+					信息转换为Zipkin内部处理的Span格式，以支持后续的存储、分析和展示等功能
+			Storage	存储组件，他主要对处理收集器接收到的跟踪信息，默认会将这些信息存储到内存中，
+				我们也可以修改此存储策略，通过使用其他储存组件将跟踪信息存储到数据库中
+			Restful API API组件，他主要用于提供外部访问接口。比如给客户端展示跟踪信息，或是外接系统访问以实现监控等
+			
+			WebUI
+				UI组件，基于API组件实现的上层应用，通过UI组件用户可以方便有直观的查询和分析追踪信息
+		
+		zipkin Server的部署和配置
+			1、zipkin Server下载  --- https://dl.bintray.com/openzipkin/maven/io/zipkin/java/zipkin-server/
+			2、启动java -jar ...
+			3、默认端口9411
+			
+		zipkin配置客户端
+		1、每个需要追踪的微服务添加如下jar
+	
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-zipkin</artifactId>
+			</dependency>
+		
+		2、每个需要追踪的微服务添加配置
+			spring:
+				zipkin:
+					base-url: http://127.0.0.1:9411/	# server的请求路径
+					sender:
+						type: web #数据的传输方式，以http的形式向server端发送数据
+						
+				sleuth:
+					sampler:
+						probability: 1 # 采样比
+					
+					
+		zipkin的日志数据持久化
+			zipkin服务端，将数据存储到mysql数据库中
+			1、准备数据库和表 -- zipkin提供
+			2、修改server的启动命令
+			java -jar zipkin-server-2.12.9-exec.jar --STORAGE_TYPE=mysql --MYSQL_HOST=127.0.0.1 --MYSQL_TCP_PORT=3306 
+			--MYSQL_USER=root --MYSQL_PASS=root --MYSQL_DB=zipkin
+			
+			zipkin使用消息中间件优化
+				1、准备消息中间件
+				2、修改zipkin客户端，将消息发送到mq服务器
+				3、修改zipkin服务端，从rabbit中拉取消息
+				
+springcloud stream
+	SpringCloud Stream由一个中间件中立的核组成的
+	
+	绑定器
+		
+	入门案例
+		1、引入工程依赖
+			spring-cloud-starter-stream-rabbit /// kafka
+		
+		2、配置applicaiton
+		
+		3、MessageSender、MessageListener
+		
+	消息分组
+		spring.cloud.stream.bindings.input.group属性即可
+		
+	消息分区
+		消费者
+		spring:
+		  application:
+			  name: stream-consumer
+		  rabbitmq:
+			addresses: 127.0.0.1
+			username: guest
+			password: guest
+		  cloud:
+			stream:
+			  bindings:
+				input:  #内置的获取消息的通道，从rabbit-stream中获取消息
+				  destination: rabbit-stream
+				  group: group1 #设置消息的组名称(同名组中有多个消费者，只会有一个去消费消息)
+				  consumer:
+					partitioned: true # 开启分区支持
+			  binders:  #配置绑定器
+				defaultRabbit:
+				  type: rabbit
+			  instance-count: 2 #消费者总数
+			  instance-index: 0 #当前消费者的索引 另外一个1
+			  
+		生产者	
+		spring:
+		  application:
+			  name: stream-producer
+		  rabbitmq:
+			addresses: 127.0.0.1
+			username: guest
+			password: guest
+		  cloud:
+			stream:
+			  bindings:
+				output:
+				  destination: rabbit-stream #指定消息的目的地，在rabbitmq中发送到一个rabbit-stream的exchange
+				  producer:
+					partition-key-expression: payload #分区关键字  对象中的id
+					partition-key: 2 # 分区大小
+			  binders:  #配置绑定器
+				defaultRabbit:
+				  type: rabbit
+
+			
+	
+配置中心
+	需求
+		1、集中配置管理
+		2、不同环境不同配置
+		3、运行期间可动态调整
+		4、配置修改后可自动更新
+	
+	
+	1、springcloud config配置中心
+		入门案例
+			1、创建server
+			2、创建Client
+		
+		手动刷新数据
+			1、导入
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-actuator</artifactId>
+			</dependency>
+			2、在需要的类上加上@RefreshScope
+			3、再配置中心写
+			management:
+			  endpoints:
+				web:
+				  exposure:
+					include:  refresh  开放一个端口
+			4、需要post请求
+				.../refresh
+			
+		高可用，配置中心配置集群
+			1、server 端使用注册中心
+			
+			2、client端使用服务名
+			spring:
+				cloud:
+					config:
+						discovery:
+							enabled: true
+							service-id: config-server
+		
+		
+		
+		整合SpringCloud-Bus
+			在微服务架构中，通常会使用轻量级的消息代理来构建一个共用的消息主题连接各个微服务实例
+			他广播的消息会被所有注册中心的微服务实例监听和消费，也称消息总线
+			
+			利用SpringCloud Bus做配置更新的步骤
+				1、提交代码触发post请求给bus/refresh
+				2、server端接收到请求并发送给SpringCloud Bus
+				3、SpringCloud Bus接收到消息并通知给其他客户端
+				4、其他客户端接收到通知，请求server端获取最新配置
+				5、全部客户端均获取到最新配置
+				
+			1、Server、client端引入消息总线依赖
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-bus</artifactId>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-stream-binder-rabbit</artifactId>
+			</dependency>
+			
+			2、server、client端配置
+			spring:
+			  rabbitmq:
+				addresses: 127.0.0.1
+				username: guest
+				password: guest
+		
+	2、配置中心Apollo
+		Apollo是携程框架部门研发的分布式配置中心，能够集中化管理应用不同环境、不同集群配置，配置修改后能够
+		实时推送到应用端，并且具备规范的权限、流程治理等特性，适用于微服务配置管理场景。
+		
+		特性
+			1、统一管理不同环境、不同集群的配置
+			2、配置修改实时生效（热发布）
+			3、版本发布管理
+			4、灰度发布
+			5、权限管理、发布审核、操作审计
+			6、客户端配置信息监控
+			7、提供Java和Net原生客户端
+			8、提供开放平台API
+			9、部署简单
+		
+		实现过程
+			1、通过长连接，实时的获取最新的服务端配置数据
+			2、定时拉取配置
+			3、客户端获取数据之后，将数据保存到内存中，
+				也会将数据保存到本地文件中
+				
+				
+		搭建Apollo服务端
+			环境
+				Java 1.8+
+				Mysql 5.6+
+			配置数据库
+				共需要ApolloPortalDB和ApolloConfigDB
+			数据库连接
+				编辑demo.sh
+			
+			

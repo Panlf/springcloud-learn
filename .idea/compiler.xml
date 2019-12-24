@@ -20,6 +20,7 @@
         <module name="springcloud-hystrix-dashboard" />
         <module name="springcloud-sentinel-order" />
         <module name="springcloud-sentinel-product" />
+        <module name="springcloud-sleuth-product" />
         <module name="springcloud-stream-consumer" />
         <module name="springcloud-stream-producer" />
         <module name="springcloud-zuul-server" />
@@ -41,6 +42,7 @@
       <module name="springcloud-learn" target="1.8" />
       <module name="springcloud-sentinel-order" target="1.8" />
       <module name="springcloud-sentinel-product" target="1.8" />
+      <module name="springcloud-sleuth-product" target="1.8" />
       <module name="springcloud-stream-consumer" target="1.8" />
       <module name="springcloud-stream-producer" target="1.8" />
       <module name="springcloud-zuul-server" target="1.8" />

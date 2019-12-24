@@ -1,15 +1,8 @@
 server:
-  port: 8060
+  port: 8061
 spring:
   application:
-    name: gateway-sleuth
-# 配置springcloud-gateway路由
-  cloud:
-    gateway:
-      discovery:
-        locator:
-          enabled: true #开启根据服务名称进行转发
-          lower-case-service-id: true # 所有以小写呈现
+    name: sleuth-product
     # 配置consul的服务注册
     consul:
       host: 127.0.0.1 # consul服务器主机地址
