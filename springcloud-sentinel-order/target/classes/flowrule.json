@@ -1,8 +1,0 @@
-[
-  {
-    "resource": "GET:http://sentinel-product/get/{id}",
-    "count": 5000,
-    "grade": 0,
-    "timeWindow": 10
-  }
-]
